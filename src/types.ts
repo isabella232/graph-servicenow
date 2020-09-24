@@ -6,12 +6,15 @@ import { IntegrationInstanceConfig } from '@jupiterone/integration-sdk-core';
  */
 export interface IntegrationConfig extends IntegrationInstanceConfig {
   /**
-   * The provider API client ID used to authenticate requests.
+   * Hostname for ServiceNow implementation, e.g. dev94579.service-now.com
    */
-  clientId: string;
-
+  hostname: string;
   /**
-   * The provider API client secret used to authenticate requests.
+   * Username for basic auth
    */
-  clientSecret: string;
+  username: string;
+  /**
+   * Password for basic auth
+   */
+  password: string;
 }

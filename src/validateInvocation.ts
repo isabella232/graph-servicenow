@@ -3,7 +3,7 @@ import {
   IntegrationValidationError,
 } from '@jupiterone/integration-sdk-core';
 
-import { createAPIClient } from './client';
+import { ServiceNowClient } from './client';
 import { IntegrationConfig } from './types';
 
 export default async function validateInvocation(
@@ -11,12 +11,12 @@ export default async function validateInvocation(
 ) {
   const { config } = context.instance;
 
-  if (!config.clientId || !config.clientSecret) {
+  if (!config.hostname || !config.username || !config.password) {
     throw new IntegrationValidationError(
-      'Config requires all of {clientId, clientSecret}',
+      'Config requires all of {hostname, username, password}',
     );
   }
 
-  const apiClient = createAPIClient(config);
-  await apiClient.verifyAuthentication();
+  const client = new ServiceNowClient(config);
+  await client.validate();
 }

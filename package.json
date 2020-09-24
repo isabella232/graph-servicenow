@@ -21,14 +21,20 @@
     "test:ci": "yarn lint && yarn type-check && yarn test",
     "build": "tsc -p tsconfig.dist.json --declaration",
     "prepush": "yarn lint && yarn type-check && jest --changedSince master",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "list-remote-tables": "ts-node tools/listRemoteTables.ts"
   },
   "peerDependencies": {
-    "@jupiterone/integration-sdk-core": "^3.1.0"
+    "@jupiterone/integration-sdk-core": "^3.2.1"
   },
   "devDependencies": {
-    "@jupiterone/integration-sdk-core": "^3.1.0",
-    "@jupiterone/integration-sdk-dev-tools": "^3.1.0",
-    "@jupiterone/integration-sdk-testing": "^3.1.0"
+    "@jupiterone/integration-sdk-core": "^3.2.1",
+    "@jupiterone/integration-sdk-dev-tools": "^3.2.1",
+    "@jupiterone/integration-sdk-runtime": "^3.2.2",
+    "@jupiterone/integration-sdk-testing": "^3.2.1",
+    "ts-node": "^9.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.20.0"
   }
 }

@@ -1,149 +1,129 @@
-import http from 'http';
-
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import axios, { AxiosError } from 'axios';
 
 import { IntegrationConfig } from './types';
+import { getServiceNowNextLink } from './util/getServiceNowNextLink';
+import {
+  IntegrationProviderAuthorizationError,
+  IntegrationValidationError,
+} from '@jupiterone/integration-sdk-core';
 
-export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
-
-// Providers often supply types with their API libraries.
-
-type AcmeUser = {
-  id: string;
-  name: string;
-};
-
-type AcmeGroup = {
-  id: string;
-  name: string;
-  users?: Pick<AcmeUser, 'id'>[];
-};
-
-// Those can be useful to a degree, but often they're just full of optional
-// values. Understanding the response data may be more reliably accomplished by
-// reviewing the API response recordings produced by testing the wrapper client
-// (below). However, when there are no types provided, it is necessary to define
-// opaque types for each resource, to communicate the records that are expected
-// to come from an endpoint and are provided to iterating functions.
-
-/*
-import { Opaque } from 'type-fest';
-export type AcmeUser = Opaque<any, 'AcmeUser'>;
-export type AcmeGroup = Opaque<any, 'AcmeGroup'>;
-*/
-
-/**
- * An APIClient maintains authentication state and provides an interface to
- * third party data APIs.
- *
- * It is recommended that integrations wrap provider data APIs to provide a
- * place to handle error responses and implement common patterns for iterating
- * resources.
- */
-export class APIClient {
-  constructor(readonly config: IntegrationConfig) {}
-
-  public async verifyAuthentication(): Promise<void> {
-    // TODO make the most light-weight request possible to validate
-    // authentication works with the provided credentials, throw an err if
-    // authentication fails
-    const request = new Promise((resolve, reject) => {
-      http.get(
-        {
-          hostname: 'localhost',
-          port: 443,
-          path: '/api/v1/some/endpoint?limit=1',
-          agent: false,
-          timeout: 10,
-        },
-        (res) => {
-          if (res.statusCode !== 200) {
-            reject(new Error('Provider authentication failed'));
-          } else {
-            resolve();
-          }
-        },
-      );
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAuthenticationError({
-        cause: err,
-        endpoint: 'https://localhost/api/v1/some/endpoint?limit=1',
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
-  }
-
-  /**
-   * Iterates each user resource in the provider.
-   *
-   * @param iteratee receives each resource to produce entities/relationships
-   */
-  public async iterateUsers(
-    iteratee: ResourceIteratee<AcmeUser>,
-  ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
-
-    const users: AcmeUser[] = [
-      {
-        id: 'acme-user-1',
-        name: 'User One',
-      },
-      {
-        id: 'acme-user-2',
-        name: 'User Two',
-      },
-    ];
-
-    for (const user of users) {
-      await iteratee(user);
-    }
-  }
-
-  /**
-   * Iterates each group resource in the provider.
-   *
-   * @param iteratee receives each resource to produce entities/relationships
-   */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<AcmeGroup>,
-  ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
-
-    const groups: AcmeGroup[] = [
-      {
-        id: 'acme-group-1',
-        name: 'Group One',
-        users: [
-          {
-            id: 'acme-user-1',
-          },
-        ],
-      },
-    ];
-
-    for (const group of groups) {
-      await iteratee(group);
-    }
-  }
+export enum ServiceNowTable {
+  USER = 'sys_user',
+  USER_GROUP = 'sys_user_group',
+  DATABASE_TABLES = 'sys_db_object',
+  GROUP_MEMBER = 'sys_user_grmember',
 }
 
-export function createAPIClient(config: IntegrationConfig): APIClient {
-  return new APIClient(config);
+const DEFAULT_RESPONSE_LIMIT = 100;
+
+/**
+ * The ServiceNowClient maintains authentication state and provides an interface to
+ * interact with the ServiceNow Table API.
+ */
+export class ServiceNowClient {
+  private hostname: string;
+  private username: string;
+  private password: string;
+
+  private limit: number;
+
+  constructor(readonly config: IntegrationConfig, limit?: number) {
+    this.hostname = config.hostname;
+    this.username = config.username;
+    this.password = config.password;
+
+    this.limit = limit || DEFAULT_RESPONSE_LIMIT;
+  }
+
+  async validate() {
+    const url = this.createRequestUrl({ table: ServiceNowTable.USER });
+    try {
+      await this.request({ url });
+    } catch (err) {
+      if (err.code === 'ENOTFOUND') {
+        throw new IntegrationValidationError(
+          `Failure validating the ServiceNow API: ${err.message}`,
+        );
+      }
+
+      if (err.isAxiosError) {
+        if ((err as AxiosError).response?.status === 401) {
+          throw new IntegrationProviderAuthorizationError({
+            cause: err,
+            endpoint: url,
+            status: (err as AxiosError).response?.status as number,
+            statusText: JSON.stringify((err as AxiosError).response?.data),
+          });
+        }
+      }
+
+      throw err;
+    }
+  }
+
+  private createRequestUrl(options: { table: ServiceNowTable }) {
+    return `https://${this.hostname}/api/now/table/${options.table}?sysparm_limit=${this.limit}`;
+  }
+
+  private async request(options: { url: string }) {
+    return await axios({
+      method: 'GET',
+      url: options.url,
+      auth: {
+        username: this.username,
+        password: this.password,
+      },
+      responseType: 'json',
+    });
+  }
+
+  private async iterateTableResources(options: {
+    table: ServiceNowTable;
+    callback: (r: any) => void | Promise<void>;
+  }) {
+    const { table, callback } = options;
+    let url: string | undefined = this.createRequestUrl({ table });
+    do {
+      const response = await this.request({ url });
+
+      response.data.result.forEach(async (r) => {
+        await callback(r);
+      });
+      url = getServiceNowNextLink(response?.headers?.link);
+    } while (url);
+  }
+
+  async iterateUsers(callback: (r: any) => void | Promise<void>) {
+    return this.iterateTableResources({
+      table: ServiceNowTable.USER,
+      callback,
+    });
+  }
+
+  async iterateGroups(callback: (r: any) => void | Promise<void>) {
+    return this.iterateTableResources({
+      table: ServiceNowTable.USER_GROUP,
+      callback,
+    });
+  }
+
+  async iterateGroupMembers(callback: (r: any) => void | Promise<void>) {
+    return this.iterateTableResources({
+      table: ServiceNowTable.GROUP_MEMBER,
+      callback,
+    });
+  }
+
+  async listTableNames(tableNamePrefix: string = ''): Promise<string[]> {
+    const tableNames: string[] = [];
+    await this.iterateTableResources({
+      table: ServiceNowTable.DATABASE_TABLES,
+      callback: (t) => {
+        if ((t.name as string).startsWith(tableNamePrefix)) {
+          tableNames.push(t.name);
+        }
+      },
+    });
+    return tableNames;
+  }
 }
