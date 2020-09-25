@@ -11,8 +11,8 @@ function convertCommonServiceNowProperties(
   serviceNowObject: any,
 ): Record<string, string | boolean | number | null | undefined> {
   return {
-    createdOn: new Date(serviceNowObject.sys_created_on).valueOf(),
-    updatedOn: new Date(serviceNowObject.sys_updated_on).valueOf(),
+    createdOn: new Date(serviceNowObject.sys_created_on + ' UTC').valueOf(),
+    updatedOn: new Date(serviceNowObject.sys_updated_on + ' UTC').valueOf(),
     id: serviceNowObject.sys_id,
   };
 }

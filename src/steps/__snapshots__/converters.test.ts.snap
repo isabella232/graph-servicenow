@@ -12,7 +12,7 @@ Object {
       "rawData": Object {
         "active": "true",
         "cost_center": "",
-        "createdOn": 1600913028000,
+        "createdOn": 1600898628000,
         "default_assignee": "",
         "description": "",
         "email": "j1-subgroup@jupiterone.com",
@@ -35,19 +35,19 @@ Object {
         "sys_updated_by": "j1-administrator",
         "sys_updated_on": "2020-09-23 22:03:48",
         "type": "",
-        "updatedOn": 1600913028000,
+        "updatedOn": 1600898628000,
       },
     },
   ],
   "_type": "service_now_group",
   "active": true,
-  "createdOn": 1600913028000,
+  "createdOn": 1600898628000,
   "description": "",
   "displayName": "j1-subgroup",
   "email": "j1-subgroup@jupiterone.com",
   "id": "66a74a7fdb1710109d87a9954b961914",
   "name": "j1-subgroup",
-  "updatedOn": 1600913028000,
+  "updatedOn": 1600898628000,
 }
 `;
 
@@ -69,10 +69,10 @@ Object {
   "_key": "43f6027fdb1710109d87a9954b961939|has|5ccbba87db1310109d87a9954b9619db",
   "_toEntityKey": "5ccbba87db1310109d87a9954b9619db",
   "_type": "service_now_group_has_user",
-  "createdOn": 1600912975000,
+  "createdOn": 1600898575000,
   "displayName": "HAS",
   "id": "94878e3fdb1710109d87a9954b96195f",
-  "updatedOn": 1600912975000,
+  "updatedOn": 1600898575000,
 }
 `;
 
@@ -94,7 +94,7 @@ Object {
         "company": "",
         "cost_center": "",
         "country": "",
-        "createdOn": 1600725437000,
+        "createdOn": 1600711037000,
         "date_format": "",
         "default_perspective": "",
         "department": Object {
@@ -147,7 +147,7 @@ Object {
         "time_format": "",
         "time_zone": "",
         "title": "",
-        "updatedOn": 1600913274000,
+        "updatedOn": 1600898874000,
         "user_name": "j1-administrator",
         "user_password": "[REDACTED]",
         "vip": "false",
@@ -158,12 +158,12 @@ Object {
   ],
   "_type": "service_now_user",
   "active": true,
-  "createdOn": 1600725437000,
+  "createdOn": 1600711037000,
   "displayName": "Jupiterone Administrator",
   "email": "j1-admin@jupiterone.com",
   "id": "5ccbba87db1310109d87a9954b9619db",
   "name": "Jupiterone Administrator",
-  "updatedOn": 1600913274000,
+  "updatedOn": 1600898874000,
   "username": "j1-administrator",
 }
 `;
