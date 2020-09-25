@@ -2,7 +2,7 @@ import { setupServiceNowRecording, Recording } from '../test/util/recording';
 import { ServiceNowClient } from './client';
 import { createTestConfig } from '../test/util/createTestConfig';
 
-const config = createTestConfig();
+const config = createTestConfig('dev94579.service-now.com');
 
 let recording: Recording;
 afterEach(async () => {

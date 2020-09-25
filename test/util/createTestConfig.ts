@@ -1,15 +1,9 @@
 import { IntegrationConfig } from '../../src/types';
 
-const defaultConfig: IntegrationConfig = {
-  hostname: 'default-hostname.service-now.com',
-  username: 'default-username',
-  password: 'default-password',
-};
-
-export function createTestConfig(): IntegrationConfig {
+export function createTestConfig(hostname: string): IntegrationConfig {
   return {
-    hostname: process.env.HOSTNAME || defaultConfig.hostname,
-    username: process.env.USERNAME || defaultConfig.username,
-    password: process.env.PASSWORD || defaultConfig.password,
+    hostname: process.env.HOSTNAME || hostname,
+    username: process.env.USERNAME || 'default-username',
+    password: process.env.PASSWORD || 'default-password',
   };
 }

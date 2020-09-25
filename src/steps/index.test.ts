@@ -9,7 +9,7 @@ import { createTestConfig } from '../../test/util/createTestConfig';
 import { setupServiceNowRecording } from '../../test/util/recording';
 import { Steps, Entities } from '../constants';
 
-const config = createTestConfig();
+const config = createTestConfig('dev94579.service-now.com');
 
 let recording: Recording;
 
