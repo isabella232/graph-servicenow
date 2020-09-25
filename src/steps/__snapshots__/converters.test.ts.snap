@@ -1,5 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`createAccountEntity 1`] = `
+Object {
+  "_class": Array [
+    "Account",
+  ],
+  "_key": "dev00000.service-now.com",
+  "_rawData": Array [],
+  "_type": "service_now_account",
+  "createdOn": undefined,
+  "displayName": "dev00000.service-now.com",
+  "name": "dev00000.service-now.com",
+}
+`;
+
 exports[`createGroupEntity 1`] = `
 Object {
   "_class": Array [

@@ -6,12 +6,16 @@ import { ServiceNowClient } from '../src/client';
 import { loadConfigFromEnvironmentVariables } from '@jupiterone/integration-sdk-runtime';
 import instanceConfigFields from '../src/instanceConfigFields';
 import { IntegrationConfig } from '../src/types';
+import { IntegrationLogger } from '@jupiterone/integration-sdk-core';
 
 const config = loadConfigFromEnvironmentVariables<IntegrationConfig>(
   instanceConfigFields,
 );
 
-const client = new ServiceNowClient(config);
+const client = new ServiceNowClient(
+  config,
+  (undefined as unknown) as IntegrationLogger,
+);
 
 const filename = path.join(__dirname, '__data__', 'tables.txt');
 

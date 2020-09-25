@@ -3,8 +3,21 @@ import {
   createGroupEntity,
   createGroupUserRelationship,
   createGroupGroupRelationship,
+  createAccountEntity,
 } from './converters';
 import { Entities } from '../constants';
+
+test('createAccountEntity', () => {
+  const hostname = 'dev00000.service-now.com';
+
+  const accountEntity = createAccountEntity(hostname);
+
+  expect(accountEntity).toMatchGraphObjectSchema({
+    _class: Entities.ACCOUNT._class,
+    schema: {},
+  });
+  expect(accountEntity).toMatchSnapshot();
+});
 
 test('createUserEntity', () => {
   const user = {
@@ -78,11 +91,11 @@ test('createUserEntity', () => {
 
   const userEntity = createUserEntity(user);
 
-  expect(userEntity).toMatchSnapshot();
   expect(userEntity).toMatchGraphObjectSchema({
     _class: Entities.USER._class,
     schema: {},
   });
+  expect(userEntity).toMatchSnapshot();
 });
 
 test('createGroupEntity', () => {
@@ -115,11 +128,11 @@ test('createGroupEntity', () => {
 
   const groupEntity = createGroupEntity(group);
 
-  expect(groupEntity).toMatchSnapshot();
   expect(groupEntity).toMatchGraphObjectSchema({
     _class: Entities.GROUP._class,
     schema: {},
   });
+  expect(groupEntity).toMatchSnapshot();
 
   const groupGroupRelationship = createGroupGroupRelationship(
     groupEntity,

@@ -17,6 +17,21 @@ function convertCommonServiceNowProperties(
   };
 }
 
+export function createAccountEntity(hostname: string): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: {},
+      assign: {
+        _class: Entities.ACCOUNT._class,
+        _type: Entities.ACCOUNT._type,
+        _key: hostname,
+        name: hostname,
+        displayName: hostname,
+      },
+    },
+  });
+}
+
 export function createUserEntity(user: any): Entity {
   user.user_password = '[REDACTED]';
   return createIntegrationEntity({

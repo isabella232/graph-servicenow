@@ -4,17 +4,52 @@ import {
 } from '@jupiterone/integration-sdk-testing';
 
 import { IntegrationConfig } from '../types';
-import { fetchGroups, fetchUsers, buildGroupUserRelationships } from './index';
+import {
+  fetchGroups,
+  fetchUsers,
+  buildGroupUserRelationships,
+  createAccount,
+} from './index';
 import { createTestConfig } from '../../test/util/createTestConfig';
 import { setupServiceNowRecording } from '../../test/util/recording';
 import { Steps, Entities } from '../constants';
+import { createAccountEntity } from './converters';
 
 const config = createTestConfig('dev94579.service-now.com');
+
+const mockGetData = jest.fn().mockImplementation(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async (key) => {
+    if (key === Entities.ACCOUNT._type) {
+      return createAccountEntity('hostname.service-now.com');
+    } else {
+      throw new Error('Called jobState.getData(key) with an unexpected `key`!');
+    }
+  },
+);
 
 let recording: Recording;
 
 afterEach(async () => {
-  await recording.stop();
+  if (recording) {
+    await recording.stop();
+  }
+});
+
+test('step - account', async () => {
+  const context = createMockStepExecutionContext<IntegrationConfig>({
+    instanceConfig: config,
+  });
+
+  await createAccount(context);
+
+  expect(context.jobState.collectedEntities.length).toEqual(1);
+  expect(context.jobState.collectedEntities).toMatchGraphObjectSchema({
+    _class: Entities.ACCOUNT._class,
+    schema: {},
+  });
+
+  expect(context.jobState.collectedRelationships.length).toBe(0);
 });
 
 test('step - users', async () => {
@@ -25,6 +60,7 @@ test('step - users', async () => {
   const context = createMockStepExecutionContext<IntegrationConfig>({
     instanceConfig: config,
   });
+  context.jobState.getData = mockGetData;
 
   await fetchUsers(context);
 
@@ -34,7 +70,10 @@ test('step - users', async () => {
     schema: {},
   });
 
-  expect(context.jobState.collectedRelationships.length).toBe(0);
+  expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
+  expect(
+    context.jobState.collectedRelationships.map((r) => r._key),
+  ).toBeDistinct();
 });
 
 test('step - groups', async () => {
@@ -45,6 +84,7 @@ test('step - groups', async () => {
   const context = createMockStepExecutionContext<IntegrationConfig>({
     instanceConfig: config,
   });
+  context.jobState.getData = mockGetData;
 
   await fetchGroups(context);
 

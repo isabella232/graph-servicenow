@@ -45,10 +45,11 @@ https://github.com/JupiterOne/sdk/blob/master/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources  | Entity `_type`      | Entity `_class` |
-| ---------- | ------------------- | --------------- |
-| User       | `service_now_user`  | `User`          |
-| User Group | `service_now_group` | `UserGroup`     |
+| Resources  | Entity `_type`        | Entity `_class` |
+| ---------- | --------------------- | --------------- |
+| Account    | `service_now_account` | `Account`       |
+| User       | `service_now_user`    | `User`          |
+| User Group | `service_now_group`   | `UserGroup`     |
 
 ### Relationships
 
@@ -56,6 +57,8 @@ The following relationships are created/mapped:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
+| `service_now_account` | **HAS**               | `service_now_group`   |
+| `service_now_account` | **HAS**               | `service_now_user`    |
 | `service_now_group`   | **HAS**               | `service_now_group`   |
 | `service_now_group`   | **HAS**               | `service_now_user`    |
 

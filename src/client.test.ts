@@ -1,8 +1,12 @@
 import { setupServiceNowRecording, Recording } from '../test/util/recording';
 import { ServiceNowClient } from './client';
 import { createTestConfig } from '../test/util/createTestConfig';
+import { createMockExecutionContext } from '@jupiterone/integration-sdk-testing';
+import { IntegrationConfig } from './types';
 
-const config = createTestConfig('dev94579.service-now.com');
+const context = createMockExecutionContext<IntegrationConfig>({
+  instanceConfig: createTestConfig('dev94579.service-now.com'),
+});
 
 let recording: Recording;
 afterEach(async () => {
@@ -16,7 +20,10 @@ describe('iterateUsers', () => {
       name: 'iterateUsers',
     });
 
-    const client = new ServiceNowClient(config);
+    const client = new ServiceNowClient(
+      context.instance.config,
+      context.logger,
+    );
 
     const resources: any[] = [];
     await client.iterateUsers((u) => {
@@ -38,7 +45,10 @@ describe('iterateGroups', () => {
       name: 'iterateGroups',
     });
 
-    const client = new ServiceNowClient(config);
+    const client = new ServiceNowClient(
+      context.instance.config,
+      context.logger,
+    );
 
     const resources: any[] = [];
     await client.iterateGroups((g) => {
@@ -60,7 +70,10 @@ describe('iterateGroupMembers', () => {
       name: 'iterateGroupMembers',
     });
 
-    const client = new ServiceNowClient(config);
+    const client = new ServiceNowClient(
+      context.instance.config,
+      context.logger,
+    );
 
     const resources: any[] = [];
     await client.iterateGroupMembers((g) => {

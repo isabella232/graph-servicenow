@@ -1,6 +1,9 @@
 import {
   Step,
   IntegrationStepExecutionContext,
+  createDirectRelationship,
+  RelationshipClass,
+  Entity,
 } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../types';
 import { Steps, Entities, Relationships } from '../constants';
@@ -10,30 +13,62 @@ import {
   createGroupEntity,
   createGroupUserRelationship,
   createGroupGroupRelationship,
+  createAccountEntity,
 } from './converters';
 
-export async function fetchUsers(
+export async function createAccount(
   context: IntegrationStepExecutionContext<IntegrationConfig>,
 ) {
   const { instance, jobState } = context;
 
-  const client = new ServiceNowClient(instance.config);
+  const accountEntity = createAccountEntity(instance.config.hostname);
+
+  await jobState.addEntity(accountEntity);
+  await jobState.setData(Entities.ACCOUNT._type, accountEntity);
+}
+
+export async function fetchUsers(
+  context: IntegrationStepExecutionContext<IntegrationConfig>,
+) {
+  const { logger, instance, jobState } = context;
+
+  const client = new ServiceNowClient(instance.config, logger);
+
+  const accountEntity = await jobState.getData<Entity>(Entities.ACCOUNT._type);
 
   await client.iterateUsers(async (user) => {
-    await jobState.addEntity(createUserEntity(user));
+    const userEntity = await jobState.addEntity(createUserEntity(user));
+
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity,
+        to: userEntity,
+      }),
+    );
   });
 }
 
 export async function fetchGroups(
   context: IntegrationStepExecutionContext<IntegrationConfig>,
 ) {
-  const { instance, jobState } = context;
+  const { logger, instance, jobState } = context;
 
-  const client = new ServiceNowClient(instance.config);
+  const client = new ServiceNowClient(instance.config, logger);
+
+  const accountEntity = await jobState.getData<Entity>(Entities.ACCOUNT._type);
 
   await client.iterateGroups(async (group) => {
-    const groupEntity = createGroupEntity(group);
-    await jobState.addEntity(createGroupEntity(group));
+    const groupEntity = await jobState.addEntity(createGroupEntity(group));
+
+    await jobState.addRelationship(
+      createDirectRelationship({
+        _class: RelationshipClass.HAS,
+        from: accountEntity,
+        to: groupEntity,
+      }),
+    );
+
     if (group.parent) {
       const groupGroupRelationship = createGroupGroupRelationship(
         groupEntity,
@@ -47,9 +82,9 @@ export async function fetchGroups(
 export async function buildGroupUserRelationships(
   context: IntegrationStepExecutionContext<IntegrationConfig>,
 ) {
-  const { instance, jobState } = context;
+  const { logger, instance, jobState } = context;
 
-  const client = new ServiceNowClient(instance.config);
+  const client = new ServiceNowClient(instance.config, logger);
 
   await client.iterateGroupMembers(async (groupMember) => {
     await jobState.addRelationship(createGroupUserRelationship(groupMember));
@@ -60,19 +95,30 @@ export const integrationSteps: Step<
   IntegrationStepExecutionContext<IntegrationConfig>
 >[] = [
   {
+    id: Steps.ACCOUNT,
+    name: 'Account',
+    entities: [Entities.ACCOUNT],
+    relationships: [],
+    dependsOn: [],
+    executionHandler: createAccount,
+  },
+  {
     id: Steps.USERS,
     name: 'Users',
     entities: [Entities.USER],
-    relationships: [],
-    dependsOn: [],
+    relationships: [Relationships.ACCOUNT_HAS_USER],
+    dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchUsers,
   },
   {
     id: Steps.GROUPS,
     name: 'Groups',
     entities: [Entities.GROUP],
-    relationships: [Relationships.GROUP_HAS_GROUP],
-    dependsOn: [],
+    relationships: [
+      Relationships.GROUP_HAS_GROUP,
+      Relationships.ACCOUNT_HAS_GROUP,
+    ],
+    dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchGroups,
   },
   {

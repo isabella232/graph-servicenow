@@ -1,10 +1,12 @@
 import axios, { AxiosError } from 'axios';
+import { retry } from '@lifeomic/attempt';
 
 import { IntegrationConfig } from './types';
 import { getServiceNowNextLink } from './util/getServiceNowNextLink';
 import {
   IntegrationProviderAuthorizationError,
   IntegrationValidationError,
+  IntegrationLogger,
 } from '@jupiterone/integration-sdk-core';
 
 export enum ServiceNowTable {
@@ -25,14 +27,18 @@ export class ServiceNowClient {
   private username: string;
   private password: string;
 
+  private logger: IntegrationLogger;
+
   private limit: number;
 
-  constructor(readonly config: IntegrationConfig, limit?: number) {
+  constructor(readonly config: IntegrationConfig, logger: IntegrationLogger) {
     this.hostname = config.hostname;
     this.username = config.username;
     this.password = config.password;
 
-    this.limit = limit || DEFAULT_RESPONSE_LIMIT;
+    this.logger = logger;
+
+    this.limit = DEFAULT_RESPONSE_LIMIT;
   }
 
   async validate() {
@@ -77,6 +83,22 @@ export class ServiceNowClient {
     });
   }
 
+  private async retryResourceRequest(
+    url: string,
+  ): Promise<object[] & { nextLink: string | undefined }> {
+    return retry(
+      async () => {
+        const response = await this.request({ url });
+        return Object.assign(response.data.result, {
+          nextLink: getServiceNowNextLink(response?.headers?.link),
+        });
+      },
+      {
+        maxAttempts: 2,
+      },
+    );
+  }
+
   private async iterateTableResources(options: {
     table: ServiceNowTable;
     callback: (r: any) => void | Promise<void>;
@@ -84,12 +106,20 @@ export class ServiceNowClient {
     const { table, callback } = options;
     let url: string | undefined = this.createRequestUrl({ table });
     do {
-      const response = await this.request({ url });
+      const resources = await this.retryResourceRequest(url);
 
-      await response.data.result.forEach(async (r) => {
+      for (const r of resources) {
         await callback(r);
-      });
-      url = getServiceNowNextLink(response?.headers?.link);
+      }
+
+      this.logger.info(
+        {
+          resourceCount: resources.length,
+          resource: url,
+        },
+        'Received resources for endpoint',
+      );
+      url = resources.nextLink;
     } while (url);
   }
 

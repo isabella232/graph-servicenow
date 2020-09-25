@@ -17,6 +17,6 @@ export default async function validateInvocation(
     );
   }
 
-  const client = new ServiceNowClient(config);
+  const client = new ServiceNowClient(config, context.logger);
   await client.validate();
 }
