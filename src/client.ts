@@ -86,7 +86,7 @@ export class ServiceNowClient {
     do {
       const response = await this.request({ url });
 
-      response.data.result.forEach(async (r) => {
+      await response.data.result.forEach(async (r) => {
         await callback(r);
       });
       url = getServiceNowNextLink(response?.headers?.link);

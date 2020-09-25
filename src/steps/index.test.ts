@@ -37,7 +37,7 @@ test('step - users', async () => {
   expect(context.jobState.collectedRelationships.length).toBe(0);
 });
 
-test.only('step - groups', async () => {
+test('step - groups', async () => {
   recording = setupServiceNowRecording({
     directory: __dirname,
     name: Steps.GROUPS,
