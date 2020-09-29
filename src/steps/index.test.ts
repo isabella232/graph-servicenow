@@ -1,98 +1,147 @@
-import { createMockStepExecutionContext } from '@jupiterone/integration-sdk-testing';
+import {
+  createMockStepExecutionContext,
+  Recording,
+} from '@jupiterone/integration-sdk-testing';
 
 import { IntegrationConfig } from '../types';
-import { fetchGroups, fetchUsers } from './access';
-import { fetchAccountDetails } from './account';
+import {
+  fetchGroups,
+  fetchUsers,
+  buildGroupUserRelationships,
+  createAccount,
+} from './index';
+import { createTestConfig } from '../../test/util/createTestConfig';
+import { setupServiceNowRecording } from '../../test/util/recording';
+import { Steps, Entities } from '../constants';
+import { createAccountEntity } from './converters';
 
-const DEFAULT_CLIENT_ID = 'dummy-acme-client-id';
-const DEFAULT_CLIENT_SECRET = 'dummy-acme-client-secret';
+const config = createTestConfig('dev94579.service-now.com');
 
-const integrationConfig: IntegrationConfig = {
-  clientId: process.env.CLIENT_ID || DEFAULT_CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET || DEFAULT_CLIENT_SECRET,
-};
+const mockGetData = jest.fn().mockImplementation(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async (key) => {
+    if (key === Entities.ACCOUNT._type) {
+      return createAccountEntity('hostname.service-now.com');
+    } else {
+      throw new Error('Called jobState.getData(key) with an unexpected `key`!');
+    }
+  },
+);
 
-test('should collect data', async () => {
+let recording: Recording;
+
+afterEach(async () => {
+  if (recording) {
+    await recording.stop();
+  }
+});
+
+test('step - account', async () => {
   const context = createMockStepExecutionContext<IntegrationConfig>({
-    instanceConfig: integrationConfig,
+    instanceConfig: config,
   });
 
-  // Simulates dependency graph execution.
-  // See https://github.com/JupiterOne/sdk/issues/262.
-  await fetchAccountDetails(context);
+  await createAccount(context);
+
+  expect(context.jobState.collectedEntities.length).toEqual(1);
+  expect(context.jobState.collectedEntities).toMatchGraphObjectSchema({
+    _class: Entities.ACCOUNT._class,
+    schema: {},
+  });
+
+  expect(context.jobState.collectedRelationships.length).toBe(0);
+});
+
+test('step - users', async () => {
+  recording = setupServiceNowRecording({
+    directory: __dirname,
+    name: Steps.USERS,
+  });
+  const context = createMockStepExecutionContext<IntegrationConfig>({
+    instanceConfig: config,
+  });
+  context.jobState.getData = mockGetData;
+
   await fetchUsers(context);
+
+  expect(context.jobState.collectedEntities.length).toBeGreaterThan(0);
+  expect(context.jobState.collectedEntities).toMatchGraphObjectSchema({
+    _class: Entities.USER._class,
+    schema: {},
+  });
+
+  expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
+  expect(
+    context.jobState.collectedRelationships.map((r) => r._key),
+  ).toBeDistinct();
+});
+
+test('step - groups', async () => {
+  recording = setupServiceNowRecording({
+    directory: __dirname,
+    name: Steps.GROUPS,
+  });
+  const context = createMockStepExecutionContext<IntegrationConfig>({
+    instanceConfig: config,
+  });
+  context.jobState.getData = mockGetData;
+
   await fetchGroups(context);
 
-  // Review snapshot, failure is a regression
-  expect({
-    numCollectedEntities: context.jobState.collectedEntities.length,
-    numCollectedRelationships: context.jobState.collectedRelationships.length,
-    collectedEntities: context.jobState.collectedEntities,
-    collectedRelationships: context.jobState.collectedRelationships,
-    encounteredTypes: context.jobState.encounteredTypes,
-  }).toMatchSnapshot();
-
-  const accounts = context.jobState.collectedEntities.filter((e) =>
-    e._class.includes('Account'),
-  );
-  expect(accounts.length).toBeGreaterThan(0);
-  expect(accounts).toMatchGraphObjectSchema({
-    _class: ['Account'],
-    schema: {
-      additionalProperties: false,
-      properties: {
-        _type: { const: 'acme_account' },
-        manager: { type: 'string' },
-        _rawData: {
-          type: 'array',
-          items: { type: 'object' },
-        },
-      },
-      required: ['manager'],
-    },
+  expect(context.jobState.collectedEntities.length).toBeGreaterThan(0);
+  expect(context.jobState.collectedEntities).toMatchGraphObjectSchema({
+    _class: Entities.GROUP._class,
+    schema: {},
   });
 
-  const users = context.jobState.collectedEntities.filter((e) =>
-    e._class.includes('User'),
-  );
-  expect(users.length).toBeGreaterThan(0);
-  expect(users).toMatchGraphObjectSchema({
-    _class: ['User'],
-    schema: {
-      additionalProperties: false,
-      properties: {
-        _type: { const: 'acme_user' },
-        firstName: { type: 'string' },
-        _rawData: {
-          type: 'array',
-          items: { type: 'object' },
-        },
-      },
-      required: ['firstName'],
-    },
+  expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
+  expect(
+    context.jobState.collectedRelationships.map((r) => r._key),
+  ).toBeDistinct();
+});
+
+test('step - group members', async () => {
+  recording = setupServiceNowRecording({
+    directory: __dirname,
+    name: Steps.GROUP_MEMBERS,
+  });
+  const context = createMockStepExecutionContext<IntegrationConfig>({
+    instanceConfig: config,
   });
 
-  const userGroups = context.jobState.collectedEntities.filter((e) =>
-    e._class.includes('UserGroup'),
-  );
-  expect(userGroups.length).toBeGreaterThan(0);
-  expect(userGroups).toMatchGraphObjectSchema({
-    _class: ['UserGroup'],
-    schema: {
-      additionalProperties: false,
-      properties: {
-        _type: { const: 'acme_group' },
-        logoLink: {
-          type: 'string',
-          // Validate that the `logoLink` property has a URL format
-          format: 'url',
-        },
-        _rawData: {
-          type: 'array',
-          items: { type: 'object' },
-        },
-      },
-      required: ['logoLink'],
-    },
-  });
+  await buildGroupUserRelationships(context);
+
+  expect(context.jobState.collectedEntities.length).toBe(0);
+
+  expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
+  expect(
+    context.jobState.collectedRelationships.map((r) => r._key),
+  ).toBeDistinct();
+});
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace jest {
+    interface Matchers<R> {
+      toBeDistinct(): R;
+    }
+  }
+}
+
+expect.extend({
+  toBeDistinct(received) {
+    const pass =
+      Array.isArray(received) && new Set(received).size === received.length;
+    if (pass) {
+      return {
+        message: () => `expected [${received}] array is unique`,
+        pass: true,
+      };
+    } else {
+      return {
+        message: () => `expected [${received}] array is not to unique`,
+        pass: false,
+      };
+    }
+  },
 });

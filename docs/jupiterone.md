@@ -2,21 +2,31 @@
 
 ## Setup
 
-In this section, please provide details about how to set up the integration with
-JupiterOne. This may require provisioning some resources on the provider's side
-(perhaps a role, app, or api key) and passing information over to JupiterOne.
+The JupiterOne ServiceNow integration is configured using your target ServiceNow
+implementation's `hostname`, such as `my-company.service-now.com`.
 
-## Data Model
+The integration authenticates using Basic auth with your administrator
+`username` and `password`. Whenever possible, we recommend creating a new admin
+user in your ServiceNow implementation to be used strictly for authenticating
+with this integration.
 
-Provide an overview here of the resources collected from the integration. Please
-provide a mapping of how the resources collected map to the JupiterOne Data
-Model. The tables below were taken from the Azure integration to provide an
-example of how to display that information.
+### Creating a new user admin
 
-When you start developing an integration, please clear out the tables below. As
-you add support for new entities and relationships, please update the tables and
-document the addition in the [CHANGELOG.md](../CHANGELOG.md) file at the root of
-the project.
+Follow the steps below or the steps provided in the
+[ServiceNow Product Documentation](https://docs.servicenow.com/bundle/paris-platform-administration/page/administer/users-and-groups/task/t_CreateAUser.html).
+
+1. Navigate to **User Administration > Users**:
+   ![create-new-user](./images/create-new-user.png)
+
+1. Create a new user to be used to authenticate your JupiterOne integration, and
+   click Submit: ![create-j1-user](./images/create-j1-user.png)
+
+1. Edit your new user: ![edit-user](./images/edit-user.png)
+
+1. Navigate to **Roles > Edit**: ![edit-user-role](./images/edit-user-role.png)
+
+1. Add the **admin** role to your new user:
+   ![add-admin-role](./images/add-admin-role.png)
 
 <!-- {J1_DOCUMENTATION_MARKER_START} -->
 <!--
@@ -35,9 +45,11 @@ https://github.com/JupiterOne/sdk/blob/master/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type` | Entity `_class` |
-| --------- | -------------- | --------------- |
-| Account   | `acme_account` | `Account`       |
+| Resources  | Entity `_type`        | Entity `_class` |
+| ---------- | --------------------- | --------------- |
+| Account    | `service_now_account` | `Account`       |
+| User       | `service_now_user`    | `User`          |
+| User Group | `service_now_group`   | `UserGroup`     |
 
 ### Relationships
 
@@ -45,9 +57,10 @@ The following relationships are created/mapped:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `acme_account`        | **HAS**               | `acme_user`           |
-| `acme_account`        | **HAS**               | `acme_group`          |
-| `acme_group`          | **HAS**               | `acme_user`           |
+| `service_now_account` | **HAS**               | `service_now_group`   |
+| `service_now_account` | **HAS**               | `service_now_user`    |
+| `service_now_group`   | **HAS**               | `service_now_group`   |
+| `service_now_group`   | **HAS**               | `service_now_user`    |
 
 <!--
 ********************************************************************************

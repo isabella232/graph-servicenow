@@ -1,4 +1,4 @@
-# JupiterOne Integration
+# JupiterOne Integration for ServiceNow
 
 ## Development Environment
 

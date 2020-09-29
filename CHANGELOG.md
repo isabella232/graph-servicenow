@@ -7,3 +7,9 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## v1.1.0 - 2020-09-25
+
+- Initial release
+- Added `service_now_account`, `service_now_user`, and `service_now_group`
+  entities

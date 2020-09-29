@@ -1,0 +1,176 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createAccountEntity 1`] = `
+Object {
+  "_class": Array [
+    "Account",
+  ],
+  "_key": "dev00000.service-now.com",
+  "_rawData": Array [],
+  "_type": "service_now_account",
+  "createdOn": undefined,
+  "displayName": "dev00000.service-now.com",
+  "name": "dev00000.service-now.com",
+}
+`;
+
+exports[`createGroupEntity 1`] = `
+Object {
+  "_class": Array [
+    "UserGroup",
+  ],
+  "_key": "66a74a7fdb1710109d87a9954b961914",
+  "_rawData": Array [
+    Object {
+      "name": "default",
+      "rawData": Object {
+        "active": "true",
+        "cost_center": "",
+        "default_assignee": "",
+        "description": "",
+        "email": "j1-subgroup@jupiterone.com",
+        "exclude_manager": "false",
+        "include_members": "false",
+        "manager": "",
+        "name": "j1-subgroup",
+        "parent": Object {
+          "link": "https://dev94579.service-now.com/api/now/table/sys_user_group/43f6027fdb1710109d87a9954b961939",
+          "value": "43f6027fdb1710109d87a9954b961939",
+        },
+        "roles": "",
+        "source": "",
+        "sys_created_by": "j1-administrator",
+        "sys_created_on": "2020-09-23 22:03:48",
+        "sys_id": "66a74a7fdb1710109d87a9954b961914",
+        "sys_mod_count": "0",
+        "sys_tags": "",
+        "sys_updated_by": "j1-administrator",
+        "sys_updated_on": "2020-09-23 22:03:48",
+        "type": "",
+      },
+    },
+  ],
+  "_type": "service_now_group",
+  "active": true,
+  "createdOn": 1600898628000,
+  "description": "",
+  "displayName": "j1-subgroup",
+  "email": "j1-subgroup@jupiterone.com",
+  "id": "66a74a7fdb1710109d87a9954b961914",
+  "name": "j1-subgroup",
+  "updatedOn": 1600898628000,
+}
+`;
+
+exports[`createGroupEntity 2`] = `
+Object {
+  "_class": "HAS",
+  "_fromEntityKey": "43f6027fdb1710109d87a9954b961939",
+  "_key": "43f6027fdb1710109d87a9954b961939|has|66a74a7fdb1710109d87a9954b961914",
+  "_toEntityKey": "66a74a7fdb1710109d87a9954b961914",
+  "_type": "service_now_group_has_group",
+  "displayName": "HAS",
+}
+`;
+
+exports[`createGroupUserRelationship 1`] = `
+Object {
+  "_class": "HAS",
+  "_fromEntityKey": "43f6027fdb1710109d87a9954b961939",
+  "_key": "43f6027fdb1710109d87a9954b961939|has|5ccbba87db1310109d87a9954b9619db",
+  "_toEntityKey": "5ccbba87db1310109d87a9954b9619db",
+  "_type": "service_now_group_has_user",
+  "createdOn": 1600898575000,
+  "displayName": "HAS",
+  "id": "94878e3fdb1710109d87a9954b96195f",
+  "updatedOn": 1600898575000,
+}
+`;
+
+exports[`createUserEntity 1`] = `
+Object {
+  "_class": Array [
+    "User",
+  ],
+  "_key": "5ccbba87db1310109d87a9954b9619db",
+  "_rawData": Array [
+    Object {
+      "name": "default",
+      "rawData": Object {
+        "active": "true",
+        "avatar": "",
+        "building": "",
+        "calendar_integration": "1",
+        "city": "",
+        "company": "",
+        "cost_center": "",
+        "country": "",
+        "date_format": "",
+        "default_perspective": "",
+        "department": Object {
+          "link": "https://dev94579.service-now.com/api/now/table/cmn_department/9d7802bfdb1710109d87a9954b96199d",
+          "value": "9d7802bfdb1710109d87a9954b96199d",
+        },
+        "email": "j1-admin@jupiterone.com",
+        "employee_number": "",
+        "enable_multifactor_authn": "false",
+        "failed_attempts": "0",
+        "first_name": "Jupiterone",
+        "gender": "",
+        "home_phone": "",
+        "internal_integration_user": "false",
+        "introduction": "",
+        "last_login": "2020-09-23",
+        "last_login_time": "2020-09-23 22:00:16",
+        "last_name": "Administrator",
+        "ldap_server": "",
+        "location": "",
+        "locked_out": "false",
+        "manager": "",
+        "middle_name": "",
+        "mobile_phone": "",
+        "name": "Jupiterone Administrator",
+        "notification": "2",
+        "password_needs_reset": "false",
+        "phone": "",
+        "photo": "",
+        "preferred_language": "",
+        "roles": "",
+        "schedule": "",
+        "source": "",
+        "state": "",
+        "street": "",
+        "sys_class_name": "sys_user",
+        "sys_created_by": "admin",
+        "sys_created_on": "2020-09-21 17:57:17",
+        "sys_domain": Object {
+          "link": "https://dev94579.service-now.com/api/now/table/sys_user_group/global",
+          "value": "global",
+        },
+        "sys_domain_path": "/",
+        "sys_id": "5ccbba87db1310109d87a9954b9619db",
+        "sys_mod_count": "5",
+        "sys_tags": "",
+        "sys_updated_by": "j1-administrator",
+        "sys_updated_on": "2020-09-23 22:07:54",
+        "time_format": "",
+        "time_zone": "",
+        "title": "",
+        "user_name": "j1-administrator",
+        "vip": "false",
+        "web_service_access_only": "false",
+        "zip": "",
+      },
+    },
+  ],
+  "_type": "service_now_user",
+  "active": true,
+  "createdOn": 1600711037000,
+  "displayName": "Jupiterone Administrator",
+  "email": "j1-admin@jupiterone.com",
+  "id": "5ccbba87db1310109d87a9954b9619db",
+  "name": "Jupiterone Administrator",
+  "updatedOn": 1600898874000,
+  "username": "j1-administrator",
+}
+`;
