@@ -83,7 +83,7 @@ describe('recordings', () => {
 
     expect(err).not.toBeUndefined();
     expect(err.message).toMatch(
-      'Provider authorization failed at https://dev94579.service-now.com/api/now/table/sys_user?sysparm_limit=100: 401 {"error":{"detail":"Required to provide Auth information","message":"User Not Authenticated"},"status":"failure"}',
+      'Provider authorization failed at https://dev94579.service-now.com/api/now/table/sys_user?sysparm_limit=1: 401 {"error":{"message":"User Not Authenticated","detail":"Required to provide Auth information"},"status":"failure"}',
     );
     expect(isProviderAuthError(err)).toBe(true);
   });

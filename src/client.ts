@@ -42,7 +42,10 @@ export class ServiceNowClient {
   }
 
   async validate() {
-    const url = this.createRequestUrl({ table: ServiceNowTable.USER });
+    const url = this.createRequestUrl({
+      table: ServiceNowTable.USER,
+      limit: 1,
+    });
     try {
       await this.request({ url });
     } catch (err) {
@@ -67,8 +70,12 @@ export class ServiceNowClient {
     }
   }
 
-  private createRequestUrl(options: { table: ServiceNowTable }) {
-    return `https://${this.hostname}/api/now/table/${options.table}?sysparm_limit=${this.limit}`;
+  private createRequestUrl(options: {
+    table: ServiceNowTable;
+    limit?: number;
+  }) {
+    const limit = options.limit || this.limit;
+    return `https://${this.hostname}/api/now/table/${options.table}?sysparm_limit=${limit}`;
   }
 
   private async request(options: { url: string }) {
