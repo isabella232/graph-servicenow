@@ -36,11 +36,9 @@ export function createUserEntity(user: any): Entity {
   delete user.user_password;
   return createIntegrationEntity({
     entityData: {
-      source: {
-        ...convertCommonServiceNowProperties(user),
-        ...user,
-      },
+      source: user,
       assign: {
+        ...convertCommonServiceNowProperties(user),
         _class: Entities.USER._class,
         _type: Entities.USER._type,
         _key: user.sys_id,
@@ -55,11 +53,9 @@ export function createUserEntity(user: any): Entity {
 export function createGroupEntity(group: any): Entity {
   return createIntegrationEntity({
     entityData: {
-      source: {
-        ...convertCommonServiceNowProperties(group),
-        ...group,
-      },
+      source: group,
       assign: {
+        ...convertCommonServiceNowProperties(group),
         _class: Entities.GROUP._class,
         _type: Entities.GROUP._type,
         _key: group.sys_id,
