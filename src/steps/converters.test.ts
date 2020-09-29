@@ -20,10 +20,12 @@ test('createAccountEntity', () => {
 });
 
 test('createUserEntity', () => {
+  const user_password = 'some-bogus-password';
+
   const user = {
     calendar_integration: '1',
     country: '',
-    user_password: 'some-bogus-password',
+    user_password: user_password,
     last_login_time: '2020-09-23 22:00:16',
     source: '',
     sys_updated_on: '2020-09-23 22:07:54',
@@ -96,6 +98,8 @@ test('createUserEntity', () => {
     schema: {},
   });
   expect(userEntity).toMatchSnapshot();
+  expect(JSON.stringify(userEntity).includes(user_password)).toBe(false);
+  expect(JSON.stringify(userEntity).includes('user_password')).toBe(false);
 });
 
 test('createGroupEntity', () => {

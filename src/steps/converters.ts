@@ -33,7 +33,7 @@ export function createAccountEntity(hostname: string): Entity {
 }
 
 export function createUserEntity(user: any): Entity {
-  user.user_password = '[REDACTED]';
+  delete user.user_password;
   return createIntegrationEntity({
     entityData: {
       source: {
