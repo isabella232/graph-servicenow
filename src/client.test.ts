@@ -8,6 +8,8 @@ const context = createMockExecutionContext<IntegrationConfig>({
   instanceConfig: createTestConfig('dev94579.service-now.com'),
 });
 
+jest.setTimeout(10000);
+
 let recording: Recording;
 afterEach(async () => {
   await recording.stop();
@@ -35,7 +37,7 @@ describe('iterateUsers', () => {
         user_name: 'j1-administrator',
       }),
     );
-  }, 10000);
+  });
 });
 
 describe('iterateGroups', () => {
@@ -89,6 +91,38 @@ describe('iterateGroupMembers', () => {
         group: {
           link: expect.any(String),
           value: '0a52d3dcd7011200f2d224837e6103f2',
+        },
+      }),
+    );
+  });
+});
+
+describe('iterateIncidents', () => {
+  test('all', async () => {
+    recording = setupServiceNowRecording({
+      directory: __dirname,
+      name: 'iterateIncidents',
+    });
+
+    const client = new ServiceNowClient(
+      context.instance.config,
+      context.logger,
+    );
+
+    const resources: any[] = [];
+    await client.iterateIncidents((g) => {
+      resources.push(g);
+    });
+
+    expect(resources).toContainEqual(
+      expect.objectContaining({
+        assigned_to: {
+          link: expect.any(String),
+          value: '5137153cc611227c000bbd1bd8cd2007',
+        },
+        assignment_group: {
+          link: expect.any(String),
+          value: '287ebd7da9fe198100f92cc8d1d2154e',
         },
       }),
     );

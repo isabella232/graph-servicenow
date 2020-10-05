@@ -66,6 +66,40 @@ export function createGroupEntity(group: any): Entity {
   });
 }
 
+export function createIncidentEntity(incident: any): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: incident,
+      assign: {
+        ...convertCommonServiceNowProperties(incident),
+        _class: Entities.INCIDENT._class,
+        _type: Entities.INCIDENT._type,
+        _key: incident.sys_id,
+        name: incident.number,
+        displayName: incident.number,
+        severity: incident.severity,
+        category: incident.category,
+        reporter: incident.opened_by.value,
+        impact: incident.impact,
+        resolvedAt: incident.resolved_at,
+        active: incident.active === 'true',
+      },
+    },
+  });
+}
+
+export function createIncidentAssigneeRelationship(
+  incident: any,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.ASSIGNED,
+    fromType: Entities.INCIDENT._type,
+    fromKey: incident.sys_id,
+    toType: Entities.USER._type,
+    toKey: incident.assigned_to.value,
+  });
+}
+
 export function createGroupGroupRelationship(
   groupEntity: Entity,
   parent: { link: string; value: string },

@@ -14,6 +14,8 @@ import {
   createGroupUserRelationship,
   createGroupGroupRelationship,
   createAccountEntity,
+  createIncidentEntity,
+  createIncidentAssigneeRelationship,
 } from './converters';
 
 export async function createAccount(
@@ -91,6 +93,24 @@ export async function buildGroupUserRelationships(
   });
 }
 
+export async function fetchIncidents(
+  context: IntegrationStepExecutionContext<IntegrationConfig>,
+) {
+  const { logger, instance, jobState } = context;
+
+  const client = new ServiceNowClient(instance.config, logger);
+
+  await client.iterateIncidents(async (incident) => {
+    await jobState.addEntity(createIncidentEntity(incident));
+
+    if (incident.assigned_to) {
+      await jobState.addRelationship(
+        createIncidentAssigneeRelationship(incident),
+      );
+    }
+  });
+}
+
 export const integrationSteps: Step<
   IntegrationStepExecutionContext<IntegrationConfig>
 >[] = [
@@ -128,5 +148,13 @@ export const integrationSteps: Step<
     relationships: [Relationships.GROUP_HAS_USER],
     dependsOn: [Steps.USERS, Steps.GROUPS],
     executionHandler: buildGroupUserRelationships,
+  },
+  {
+    id: Steps.INCIDENTS,
+    name: 'Incidents',
+    entities: [Entities.INCIDENT],
+    relationships: [Relationships.INCIDENT_ASSIGNED_USER],
+    dependsOn: [Steps.USERS],
+    executionHandler: fetchIncidents,
   },
 ];

@@ -9,11 +9,14 @@ import {
   IntegrationLogger,
 } from '@jupiterone/integration-sdk-core';
 
+type Iteratee<T = any> = (r: T) => void | Promise<void>;
+
 export enum ServiceNowTable {
   USER = 'sys_user',
   USER_GROUP = 'sys_user_group',
   DATABASE_TABLES = 'sys_db_object',
   GROUP_MEMBER = 'sys_user_grmember',
+  INCIDENT = 'incident',
 }
 
 const DEFAULT_RESPONSE_LIMIT = 100;
@@ -108,7 +111,7 @@ export class ServiceNowClient {
 
   private async iterateTableResources(options: {
     table: ServiceNowTable;
-    callback: (r: any) => void | Promise<void>;
+    callback: Iteratee;
   }) {
     const { table, callback } = options;
     let url: string | undefined = this.createRequestUrl({ table });
@@ -130,23 +133,30 @@ export class ServiceNowClient {
     } while (url);
   }
 
-  async iterateUsers(callback: (r: any) => void | Promise<void>) {
+  async iterateUsers(callback: Iteratee) {
     return this.iterateTableResources({
       table: ServiceNowTable.USER,
       callback,
     });
   }
 
-  async iterateGroups(callback: (r: any) => void | Promise<void>) {
+  async iterateGroups(callback: Iteratee) {
     return this.iterateTableResources({
       table: ServiceNowTable.USER_GROUP,
       callback,
     });
   }
 
-  async iterateGroupMembers(callback: (r: any) => void | Promise<void>) {
+  async iterateGroupMembers(callback: Iteratee) {
     return this.iterateTableResources({
       table: ServiceNowTable.GROUP_MEMBER,
+      callback,
+    });
+  }
+
+  async iterateIncidents(callback: Iteratee) {
+    return this.iterateTableResources({
+      table: ServiceNowTable.INCIDENT,
       callback,
     });
   }
