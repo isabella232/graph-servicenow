@@ -83,6 +83,7 @@ export function createIncidentEntity(incident: any): Entity {
         impact: incident.impact,
         resolvedAt: incident.resolved_at,
         active: incident.active === 'true',
+        reportable: false,
       },
     },
   });

@@ -189,7 +189,7 @@ Object {
 exports[`incident createIncidentEntity 1`] = `
 Object {
   "_class": Array [
-    "",
+    "Incident",
   ],
   "_key": "1c741bd70b2322007518478d83673af3",
   "_rawData": Array [
@@ -326,6 +326,7 @@ Object {
   "id": "1c741bd70b2322007518478d83673af3",
   "impact": "2",
   "name": "INC0000060",
+  "reportable": false,
   "reporter": "681ccaf9c0a8016400b98a06818d57c7",
   "resolvedAt": "2016-12-13 21:43:14",
   "severity": "3",
