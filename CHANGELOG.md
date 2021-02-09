@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added `service_now_incident` entities and relationships.
+
 ## v1.1.0 - 2020-09-25
 
 - Initial release
