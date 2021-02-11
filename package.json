@@ -25,17 +25,17 @@
     "list-remote-tables": "ts-node tools/listRemoteTables.ts"
   },
   "peerDependencies": {
-    "@jupiterone/integration-sdk-core": "^3.5.0"
+    "@jupiterone/integration-sdk-core": "^5.6.2"
   },
   "devDependencies": {
-    "@jupiterone/integration-sdk-core": "^3.5.0",
-    "@jupiterone/integration-sdk-dev-tools": "^3.5.0",
-    "@jupiterone/integration-sdk-runtime": "^3.5.0",
-    "@jupiterone/integration-sdk-testing": "^3.5.0",
+    "@jupiterone/integration-sdk-core": "^5.6.2",
+    "@jupiterone/integration-sdk-dev-tools": "^5.6.2",
+    "@jupiterone/integration-sdk-runtime": "^5.6.2",
+    "@jupiterone/integration-sdk-testing": "^5.6.2",
     "ts-node": "^9.0.0"
   },
   "dependencies": {
     "@lifeomic/attempt": "^3.0.0",
-    "axios": "^0.20.0"
+    "axios": "^0.21.1"
   }
 }
