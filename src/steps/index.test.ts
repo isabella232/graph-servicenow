@@ -9,6 +9,7 @@ import {
   fetchUsers,
   buildGroupUserRelationships,
   createAccount,
+  fetchIncidents,
 } from './index';
 import { createTestConfig } from '../../test/util/createTestConfig';
 import { setupServiceNowRecording } from '../../test/util/recording';
@@ -72,8 +73,8 @@ test('step - users', async () => {
 
   expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
   expect(
-    context.jobState.collectedRelationships.map((r) => r._key),
-  ).toBeDistinct();
+    context.jobState.collectedRelationships,
+  ).toMatchDirectRelationshipSchema({});
 });
 
 test('step - groups', async () => {
@@ -96,8 +97,8 @@ test('step - groups', async () => {
 
   expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
   expect(
-    context.jobState.collectedRelationships.map((r) => r._key),
-  ).toBeDistinct();
+    context.jobState.collectedRelationships,
+  ).toMatchDirectRelationshipSchema({});
 });
 
 test('step - group members', async () => {
@@ -115,33 +116,27 @@ test('step - group members', async () => {
 
   expect(context.jobState.collectedRelationships.length).toBeGreaterThan(0);
   expect(
-    context.jobState.collectedRelationships.map((r) => r._key),
-  ).toBeDistinct();
+    context.jobState.collectedRelationships,
+  ).toMatchDirectRelationshipSchema({});
 });
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    interface Matchers<R> {
-      toBeDistinct(): R;
-    }
-  }
-}
+test('step - incidents', async () => {
+  recording = setupServiceNowRecording({
+    directory: __dirname,
+    name: Steps.INCIDENTS,
+  });
+  const context = createMockStepExecutionContext<IntegrationConfig>({
+    instanceConfig: config,
+  });
 
-expect.extend({
-  toBeDistinct(received) {
-    const pass =
-      Array.isArray(received) && new Set(received).size === received.length;
-    if (pass) {
-      return {
-        message: () => `expected [${received}] array is unique`,
-        pass: true,
-      };
-    } else {
-      return {
-        message: () => `expected [${received}] array is not to unique`,
-        pass: false,
-      };
-    }
-  },
+  await fetchIncidents(context);
+
+  const { collectedEntities, collectedRelationships } = context.jobState;
+  expect(collectedEntities.length).toBeGreaterThan(0);
+  expect(collectedEntities).toMatchGraphObjectSchema({
+    _class: Entities.INCIDENT._class,
+  });
+
+  expect(collectedRelationships.length).toBeGreaterThan(0);
+  expect(collectedRelationships).toMatchDirectRelationshipSchema({});
 });

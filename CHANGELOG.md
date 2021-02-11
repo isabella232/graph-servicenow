@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## v0.2.0 - 2021-02-11
+
+### Updated
+
+- Updated SDK dependencies to 5.6.2.
+
+### Fixed
+
+- Change Polly config to not match recordings by hostname or headers.
+
+### Added
+
+- Added `service_now_incident` entities and relationships.
+
 ## v1.1.0 - 2020-09-25
 
 - Initial release
