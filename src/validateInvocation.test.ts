@@ -92,7 +92,7 @@ describe('recordings', () => {
   test('Should return undefined if valid credentials', async () => {
     recording = setupServiceNowRecording({
       directory: __dirname,
-      name: 'validateInvocationFailsWithGoodCredentials',
+      name: 'validateInvocationPassesWithGoodCredentials',
     });
 
     const executionContext = createMockExecutionContext<IntegrationConfig>({
