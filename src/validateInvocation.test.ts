@@ -68,11 +68,12 @@ describe('recordings', () => {
 
     const executionContext = createMockExecutionContext<IntegrationConfig>({
       instanceConfig: {
-        hostname: 'dev94579.service-now.com',
-        username: 'invalid',
-        password: 'invalid',
+        hostname: process.env.HOSTNAME || 'dev94579.service-now.com',
+        username: process.env.USERNAME || 'valid_username',
+        password: process.env.PASSWORD || 'valid_password',
       },
     });
+    const hostname = executionContext.instance.config.hostname;
 
     let err;
     try {
@@ -83,7 +84,7 @@ describe('recordings', () => {
 
     expect(err).not.toBeUndefined();
     expect(err.message).toMatch(
-      'Provider authorization failed at https://dev94579.service-now.com/api/now/table/sys_user?sysparm_limit=1: 401 {"error":{"message":"User Not Authenticated","detail":"Required to provide Auth information"},"status":"failure"}',
+      `Provider authorization failed at https://${hostname}/api/now/table/sys_user?sysparm_limit=1: 401`,
     );
     expect(isProviderAuthError(err)).toBe(true);
   });
@@ -92,14 +93,11 @@ describe('recordings', () => {
     recording = setupServiceNowRecording({
       directory: __dirname,
       name: 'validateInvocationFailsWithGoodCredentials',
-      options: {
-        recordFailedRequests: true,
-      },
     });
 
     const executionContext = createMockExecutionContext<IntegrationConfig>({
       instanceConfig: {
-        hostname: 'dev94579.service-now.com',
+        hostname: process.env.HOSTNAME || 'dev94579.service-now.com',
         username: process.env.USERNAME || 'valid_username',
         password: process.env.PASSWORD || 'valid_password',
       },

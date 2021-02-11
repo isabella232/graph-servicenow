@@ -34,7 +34,7 @@ describe('iterateUsers', () => {
 
     expect(resources).toContainEqual(
       expect.objectContaining({
-        user_name: 'j1-administrator',
+        user_name: 'survey.user',
       }),
     );
   });
@@ -59,7 +59,7 @@ describe('iterateGroups', () => {
 
     expect(resources).toContainEqual(
       expect.objectContaining({
-        name: 'j1-group',
+        name: 'Software',
       }),
     );
   });

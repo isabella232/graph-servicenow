@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Change Polly config to not match recordings by hostname or headers.
+
 ### Added
 
 - Added `service_now_incident` entities and relationships.

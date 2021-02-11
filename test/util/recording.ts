@@ -9,10 +9,24 @@ export { Recording };
 
 export function setupServiceNowRecording(
   input: Omit<SetupRecordingInput, 'mutateEntry'>,
-) {
+): Recording {
   return setupRecording({
     ...input,
     mutateEntry: mutateServiceNowEntry,
+    options: {
+      ...input.options,
+      matchRequestsBy: {
+        // hostname for developer instances include random numbers, e.g.
+        // dev99999.service-now.com
+        // We want requests to match even when devs use different hosts.
+        url: {
+          hostname: false,
+        },
+        // Ideally we would use { headers: { exclude: ['host'] } }, but
+        // was not working during tests. So we opt for the broader { headers: false }
+        headers: false,
+      },
+    },
   });
 }
 
