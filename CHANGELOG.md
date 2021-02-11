@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## v0.2.0 - 2021-02-11
+
 ### Updated
 
 - Updated SDK dependencies to 5.6.2.
