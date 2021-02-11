@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Updated
+
+- Updated SDK dependencies to 5.6.2.
+
+### Fixed
+
+- Change Polly config to not match recordings by hostname or headers.
+
 ### Added
 
 - Added `service_now_incident` entities and relationships.
